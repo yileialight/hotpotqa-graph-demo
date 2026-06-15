@@ -50,7 +50,12 @@
     const mockSearchData = [
       {id: 'q1', type: 'bridge', cluster_id: 2, text: 'Are both The Band and The Beatles musical groups?', answer: 'yes'},
       {id: 'q2', type: 'comparison', cluster_id: 0, text: 'Who works in the same industry, Steven Spielberg or Stephen King?', answer: 'Steven Spielberg (Director)'},
-      {id: 'q3', type: 'bridge', cluster_id: 1, text: 'What county is the city that hosts the 2024 Olympics located in?', answer: 'Paris'}
+      {id: 'q3', type: 'bridge', cluster_id: 1, text: 'What county is the city that hosts the 2024 Olympics located in?', answer: 'Paris'},
+      {id: 'q4', type: 'bridge', cluster_id: 0, text: 'Who was the director of the movie that starred Tom Hanks and was released in 1994 about a slow-witted man?', answer: 'Robert Zemeckis'},
+      {id: 'q5', type: 'bridge', cluster_id: 1, text: 'What river flows through the capital of the country where the Eiffel Tower is located?', answer: 'Seine'},
+      {id: 'q6', type: 'comparison', cluster_id: 3, text: 'Which element has the atomic number 1 and is the most abundant chemical substance in the universe?', answer: 'Hydrogen'},
+      {id: 'q7', type: 'bridge', cluster_id: 4, text: 'Who wrote the dystopian novel "1984" and what year was it published?', answer: 'George Orwell, 1949'},
+      {id: 'q8', type: 'comparison', cluster_id: 3, text: 'Which is larger in diameter, Earth or Mars?', answer: 'Earth'}
     ];
 
     const mockGraphDataMap = {
@@ -89,6 +94,69 @@
         ],
         edges: [
           {from: 'q3', to: 'doc5', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q4': {
+        nodes: [
+          {id: 'q4', label: 'Question\nRobert Zemeckis', color: '#e74c3c'},
+          {id: 'doc6', label: 'Doc:\nForrest Gump', color: '#3498db'},
+          {id: 'doc7', label: 'Doc:\nTom Hanks', color: '#3498db'},
+          {id: 'other_q4', label: 'Related Q', color: '#f39c12'}
+        ],
+        edges: [
+          {from: 'q4', to: 'doc6', label: 'SUPPORTED_BY'},
+          {from: 'q4', to: 'doc7', label: 'SUPPORTED_BY'},
+          {from: 'other_q4', to: 'doc7', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q5': {
+        nodes: [
+          {id: 'q5', label: 'Question\nSeine', color: '#e74c3c'},
+          {id: 'doc8', label: 'Doc:\nFrance', color: '#3498db'},
+          {id: 'doc9', label: 'Doc:\nParis', color: '#3498db'},
+          {id: 'doc10', label: 'Doc:\nSeine River', color: '#3498db'},
+          {id: 'other_q5', label: 'Related Q', color: '#f39c12'}
+        ],
+        edges: [
+          {from: 'q5', to: 'doc8', label: 'SUPPORTED_BY'},
+          {from: 'q5', to: 'doc9', label: 'SUPPORTED_BY'},
+          {from: 'q5', to: 'doc10', label: 'SUPPORTED_BY'},
+          {from: 'other_q5', to: 'doc9', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q6': {
+        nodes: [
+          {id: 'q6', label: 'Question\nHydrogen', color: '#e74c3c'},
+          {id: 'doc11', label: 'Doc:\nHydrogen', color: '#3498db'}
+        ],
+        edges: [
+          {from: 'q6', to: 'doc11', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q7': {
+        nodes: [
+          {id: 'q7', label: 'Question\nGeorge Orwell', color: '#e74c3c'},
+          {id: 'doc12', label: 'Doc:\nNineteen Eighty-Four', color: '#3498db'},
+          {id: 'doc13', label: 'Doc:\nGeorge Orwell', color: '#3498db'},
+          {id: 'other_q6', label: 'Related Q', color: '#f39c12'},
+          {id: 'other_q7', label: 'Related Q', color: '#f39c12'}
+        ],
+        edges: [
+          {from: 'q7', to: 'doc12', label: 'SUPPORTED_BY'},
+          {from: 'q7', to: 'doc13', label: 'SUPPORTED_BY'},
+          {from: 'other_q6', to: 'doc12', label: 'SUPPORTED_BY'},
+          {from: 'other_q7', to: 'doc13', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q8': {
+        nodes: [
+          {id: 'q8', label: 'Question\nEarth', color: '#e74c3c'},
+          {id: 'doc14', label: 'Doc:\nEarth', color: '#3498db'},
+          {id: 'doc15', label: 'Doc:\nMars', color: '#3498db'}
+        ],
+        edges: [
+          {from: 'q8', to: 'doc14', label: 'SUPPORTED_BY'},
+          {from: 'q8', to: 'doc15', label: 'SUPPORTED_BY'}
         ]
       }
     };
