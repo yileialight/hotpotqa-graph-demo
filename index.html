@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>HotpotQA Multi-hop Graph Analysis (Static GitHub Demo)</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 20px; background: #f0f2f5; color: #333; }
+    .container { max-width: 1200px; margin: 0 auto; display: flex; gap: 20px; }
+    .panel { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .left-panel { flex: 1; }
+    .right-panel { flex: 2; height: 800px; }
+    #mynetwork { width: 100%; height: 100%; border: 1px solid #e1e4e8; border-radius: 8px; background: #fff; }
+    h1, h2 { color: #2c3e50; }
+    input, button { padding: 8px 12px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #3498db; color: white; border: none; cursor: pointer; }
+    button:hover { background: #2980b9; }
+    .qa-box { padding: 10px; border-bottom: 1px dashed #eee; font-size: 14px; cursor: pointer; }
+    .qa-box:hover { background: #f8f9fa; }
+    .tag { display: inline-block; padding: 2px 6px; background: #e74c3c; color: white; border-radius: 4px; font-size: 11px; }
+    .tag-cluster { background: #27ae60; }
+    .demo-notice { background: #f39c12; color: white; padding: 10px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="demo-notice">
+    <strong>Static Demo Version</strong> - Hosted on GitHub Pages. Data is statically mocked to demonstrate the Graph UI without a live Neo4j database backend.
+  </div>
+  <h1>🧩 HotpotQA Multi-hop Query & Visualization</h1>
+  <div class="container">
+    <div class="panel left-panel">
+      <h2>1. Search & Cluster</h2>
+      <input type="text" id="searchInput" placeholder="Search topic (e.g. actor, band)" style="width: 70%;">
+      <button onclick="searchQuestions()">Search / Fetch</button>
+      <hr>
+      <div id="results" style="height: 600px; overflow-y: auto;"></div>
+    </div>
+    
+    <div class="panel right-panel">
+      <h2>2. Multi-hop Graph (Visualization)</h2>
+      <p style="font-size:13px; color:#7f8c8d;">Click on a question on the left to render its multi-hop reasoning path across multiple support documents.</p>
+      <div id="mynetwork"></div>
+    </div>
+  </div>
+
+  <script>
+    let network = null;
+
+    // --- MOCK DATA FOR GITHUB PAGES DEMO ---
+    const mockSearchData = [
+      {id: 'q1', type: 'bridge', cluster_id: 2, text: 'Are both The Band and The Beatles musical groups?', answer: 'yes'},
+      {id: 'q2', type: 'comparison', cluster_id: 0, text: 'Who works in the same industry, Steven Spielberg or Stephen King?', answer: 'Steven Spielberg (Director)'},
+      {id: 'q3', type: 'bridge', cluster_id: 1, text: 'What county is the city that hosts the 2024 Olympics located in?', answer: 'Paris'}
+    ];
+
+    const mockGraphDataMap = {
+      'q1': {
+        nodes: [
+          {id: 'q1', label: 'Question\nyes', color: '#e74c3c'},
+          {id: 'doc1', label: 'Doc:\nThe Band', color: '#3498db'},
+          {id: 'doc2', label: 'Doc:\nThe Beatles', color: '#3498db'},
+          {id: 'other_q1', label: 'Related Q', color: '#f39c12'}
+        ],
+        edges: [
+          {from: 'q1', to: 'doc1', label: 'SUPPORTED_BY'},
+          {from: 'q1', to: 'doc2', label: 'SUPPORTED_BY'},
+          {from: 'other_q1', to: 'doc1', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q2': {
+        nodes: [
+          {id: 'q2', label: 'Question\nSteven Spielberg', color: '#e74c3c'},
+          {id: 'doc3', label: 'Doc:\nSteven Spielberg', color: '#3498db'},
+          {id: 'doc4', label: 'Doc:\nStephen King', color: '#3498db'},
+          {id: 'other_q2', label: 'Related Q', color: '#f39c12'},
+          {id: 'other_q3', label: 'Related Q', color: '#f39c12'}
+        ],
+        edges: [
+          {from: 'q2', to: 'doc3', label: 'SUPPORTED_BY'},
+          {from: 'q2', to: 'doc4', label: 'SUPPORTED_BY'},
+          {from: 'other_q2', to: 'doc3', label: 'SUPPORTED_BY'},
+          {from: 'other_q3', to: 'doc4', label: 'SUPPORTED_BY'}
+        ]
+      },
+      'q3': {
+        nodes: [
+          {id: 'q3', label: 'Question\nParis', color: '#e74c3c'},
+          {id: 'doc5', label: 'Doc:\nParis', color: '#3498db'}
+        ],
+        edges: [
+          {from: 'q3', to: 'doc5', label: 'SUPPORTED_BY'}
+        ]
+      }
+    };
+    // ---------------------------------------
+
+    function searchQuestions() {
+      // For GitHub Pages, we simulate a fetch response using our mock data
+      const data = mockSearchData;
+      const resDiv = document.getElementById('results');
+      resDiv.innerHTML = '';
+      data.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'qa-box';
+        div.innerHTML = `
+          <strong><span class="tag">Type: ${item.type}</span> <span class="tag tag-cluster">Cluster: ${item.cluster_id}</span></strong><br>
+          Q: ${item.text}<br>
+          <i>A: ${item.answer}</i>
+        `;
+        div.onclick = () => renderGraph(item.id);
+        resDiv.appendChild(div);
+      });
+    }
+
+    function renderGraph(qid) {
+      // For GitHub Pages, we simulate the graph data fetch
+      const data = mockGraphDataMap[qid] || mockGraphDataMap['q1'];
+      const container = document.getElementById('mynetwork');
+      const graphData = {
+          nodes: new vis.DataSet(data.nodes),
+          edges: new vis.DataSet(data.edges)
+      };
+      const options = {
+          nodes: { shape: 'dot', size: 16, font: { size: 14 } },
+          edges: { arrows: 'to', font: {size:12, align:'middle'} },
+          physics: { stabilization: { iterations: 150 } }
+      };
+      if(network) network.destroy();
+      network = new vis.Network(container, graphData, options);
+    }
+
+    searchQuestions();
+  </script>
+</body>
+</html>
